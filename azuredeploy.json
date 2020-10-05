@@ -74,6 +74,9 @@
             }
         }
     },
+    "variables": {
+        "vnetSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+    },
     "resources": [
         {
             "type": "Microsoft.ContainerService/managedClusters",
@@ -102,7 +105,7 @@
                         "osType": "Linux",
                         "type": "VirtualMachineScaleSets",
                         "mode": "System",
-                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+                        "vnetSubnetID": "[variables('vnetSubnetId')]"
                     },
                     {
                         "name": "winnp",
@@ -114,7 +117,7 @@
                         "osType": "Windows",
                         "type": "VirtualMachineScaleSets",
                         "mode": "User",
-                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+                        "vnetSubnetID": "[variables('vnetSubnetId')]"
                     }
                 ],
                 "networkProfile": {
@@ -143,6 +146,36 @@
                 "addressSpace": {
                     "addressPrefixes": [
                         "[parameters('vnetAddressPrefix')]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "ClusterSubnetRoleAssignmentDeployment",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+            ],
+            "resourceGroup": "[resourceGroup().id]",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
+                            "apiVersion": "2017-05-01",
+                            "name": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/', newGuid())]",
+                            "properties": {
+                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                                "principalId": "[reference(parameters('resourceName')).identityProfile.kubeletidentity.objectId]",
+                                "scope": "[variables('vnetSubnetId')]"
+                            }
+                        }
                     ]
                 }
             }
