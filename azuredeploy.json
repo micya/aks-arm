@@ -1,0 +1,151 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of the Managed Cluster resource."
+            }
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "The location of AKS resource."
+            }
+        },
+        "nodeSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS2_v2",
+            "metadata": {
+                "description": "Cluster VM size"
+            }
+        },
+        "kubernetesVersion": {
+            "defaultValue": "1.17.11",
+            "type": "String",
+            "metadata": {
+                "description": "The version of Kubernetes."
+            }
+        },
+        "enableRBAC": {
+            "defaultValue": true,
+            "type": "Bool",
+            "metadata": {
+                "description": "Boolean flag to turn on and off of RBAC."
+            }
+        },
+        "vnetName": {
+            "defaultValue": "[concat(parameters('resourceName'), '-vnet')]",
+            "type": "string"
+        },
+        "vnetAddressPrefix": {
+            "defaultValue": "10.0.0.0/8",
+            "type": "string"
+        },
+        "vnetSubnetPrefix": {
+            "defaultValue": "10.240.0.0/16",
+            "type": "string"
+        },
+        "dnsPrefix": {
+            "defaultValue": "[concat(parameters('resourceName'), '-dns')]",
+            "type": "string"
+        },
+        "serviceCidr": {
+            "defaultValue": "10.0.0.0/16",
+            "type": "String",
+            "metadata": {
+                "description": "A CIDR notation IP range from which to assign service cluster IPs."
+            }
+        },
+        "dnsServiceIP": {
+            "defaultValue": "10.0.0.10",
+            "type": "String",
+            "metadata": {
+                "description": "Containers DNS server IP address."
+            }
+        },
+        "dockerBridgeCidr": {
+            "defaultValue": "172.17.0.1/16",
+            "type": "String",
+            "metadata": {
+                "description": "A CIDR notation IP for Docker bridge."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "apiVersion": "2020-03-01",
+            "name": "[parameters('resourceName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+            ],
+            "tags": {},
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "enableRBAC": "[parameters('enableRBAC')]",
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "count": 1,
+                        "enableAutoScaling": true,
+                        "minCount": 1,
+                        "maxCount": 100,
+                        "vmSize": "[parameters('nodeSize')]",
+                        "osType": "Linux",
+                        "type": "VirtualMachineScaleSets",
+                        "mode": "System",
+                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+                    },
+                    {
+                        "name": "winnp",
+                        "count": 0,
+                        "enableAutoScaling": true,
+                        "minCount": 0,
+                        "maxCount": 100,
+                        "vmSize": "[parameters('nodeSize')]",
+                        "osType": "Windows",
+                        "type": "VirtualMachineScaleSets",
+                        "mode": "User",
+                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+                    }
+                ],
+                "networkProfile": {
+                    "loadBalancerSku": "standard",
+                    "networkPlugin": "azure",
+                    "serviceCidr": "[parameters('serviceCidr')]",
+                    "dnsServiceIP": "[parameters('dnsServiceIP')]",
+                    "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-09-01",
+            "name": "[parameters('vnetName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "[parameters('vnetSubnetPrefix')]"
+                        }
+                    }
+                ],
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                }
+            }
+        }
+    ]
+}
