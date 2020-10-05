@@ -75,7 +75,8 @@
         }
     },
     "variables": {
-        "vnetSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]"
+        "vnetSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]",
+        "subnetRoleAssignmentName": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/4d97b98b-1d4f-4787-a291-c67834d212e7')]"
     },
     "resources": [
         {
@@ -157,7 +158,7 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
-            "resourceGroup": "[resourceGroup().id]",
+            "resourceGroup": "[resourceGroup().name]",
             "properties": {
                 "mode": "Incremental",
                 "template": {
@@ -169,7 +170,7 @@
                         {
                             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
                             "apiVersion": "2017-05-01",
-                            "name": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/', newGuid())]",
+                            "name": "[variables('subnetRoleAssignmentName')]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
                                 "principalId": "[reference(parameters('resourceName')).identityProfile.kubeletidentity.objectId]",
