@@ -25,7 +25,7 @@
         "containerGroupName": "init-container-group",
         "containerName": "init-container",
         "aksRoleAssignmentName": "[concat(parameters('clusterName'), '/default/Microsoft.Authorization/4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
-        "aksId": "[resourceId(parameters('clusterGroup'), 'Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+        "aksId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
     },
     "resources": [
         {
