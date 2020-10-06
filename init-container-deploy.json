@@ -1,0 +1,55 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string",
+            "metadata": {
+                "description": "AKS cluster name"
+            }
+        },
+        "clusterGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "AKS cluster resource group"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2018-10-01",
+            "name": "init-container-group",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "osType": "Linux",
+                "containers": [
+                    { 
+                        "name": "init-container",
+                        "properties": {
+                            "image": "micya/init-container",
+                            "resources": {
+                                "requests": {
+                                    "cpu": 1,
+                                    "memoryInGB": 0.5
+                                }
+                            },
+                            "environmentVariables": [
+                                {
+                                    "name": "CLUSTERNAME",
+                                    "value": "[parameters('clusterName')]"
+                                },
+                                {
+                                    "name": "CLUSTERGROUP",
+                                    "value": "[parameters('clusterGroup')]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

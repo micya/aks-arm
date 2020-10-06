@@ -180,6 +180,24 @@
                     ]
                 }
             }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "name": "InitContainerDeployment",
+            "dependsOn": [
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "clusterName": "[parameters('resourceName')]",
+                    "clusterGroup": "[resourceGroup().name]"
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/micya/aks-arm/master/init-container-deploy.json"
+                }
+            }
         }
     ]
 }
