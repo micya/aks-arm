@@ -21,11 +21,17 @@
             }
         }
     },
+    "variables": {
+        "containerGroupName": "init-container-group",
+        "containerName": "init-container",
+        "aksRoleAssignmentName": "[concat(parameters('clusterName'), '/default/Microsoft.Authorization/4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
+        "aksId": "[resourceId(parameters('clusterGroup'), 'Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+    },
     "resources": [
         {
             "type": "Microsoft.ContainerInstance/containerGroups",
             "apiVersion": "2018-10-01",
-            "name": "init-container-group",
+            "name": "[variables('containerGroupName')]",
             "location": "[parameters('location')]",
             "identity": {
                 "type": "SystemAssigned"
@@ -34,8 +40,8 @@
                 "osType": "Linux",
                 "restartPolicy": "Never",
                 "containers": [
-                    { 
-                        "name": "init-container",
+                    {
+                        "name": "[variables('containerName')]",
                         "properties": {
                             "image": "micya/init-container",
                             "resources": {
@@ -57,6 +63,16 @@
                         }
                     }
                 ]
+            }
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters/roleAssignments",
+            "apiVersion": "2019-06-01",
+            "name": "[variables('aksRoleAssignmentName')]",
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
+                "principalId": "[reference(variables('containerGroupName')).identity.principalId]",
+                "scope": "[variables('aksId')]"
             }
         }
     ]
