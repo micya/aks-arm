@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# login to az cli
+# login to az cli using managed identity
 az login --identity
 
 # get kubernetes credentials
