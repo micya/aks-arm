@@ -54,7 +54,8 @@
             "name": "[variables('containerGroupName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]",
+                "[resourceId('Microsoft.ContainerService/managedClusters/providers/roleAssignments', variables('aksRoleAssignmentName'))]"
             ],
             "identity": {
                 "type": "UserAssigned",
