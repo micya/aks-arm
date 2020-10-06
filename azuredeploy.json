@@ -195,7 +195,7 @@
                     "clusterGroup": "[resourceGroup().name]"
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/micya/aks-arm/master/init-container-deploy.json"
+                    "uri": "https://raw.githubusercontent.com/micya/aks-arm/main/init-container-deploy.json"
                 }
             }
         }
