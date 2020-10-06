@@ -67,7 +67,7 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2017-09-01",
             "name": "[variables('aksRoleAssignmentName')]",
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
