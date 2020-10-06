@@ -191,8 +191,15 @@
             "properties": {
                 "mode": "Incremental",
                 "parameters": {
-                    "clusterName": "[parameters('resourceName')]",
-                    "clusterGroup": "[resourceGroup().name]"
+                    "clusterName": {
+                        "value": "[parameters('resourceName')]"
+                    },
+                    "clusterGroup": {
+                        "value": "[resourceGroup().name]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
                 },
                 "templateLink": {
                     "uri": "https://raw.githubusercontent.com/micya/aks-arm/main/init-container-deploy.json"
