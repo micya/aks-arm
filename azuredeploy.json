@@ -76,7 +76,8 @@
     },
     "variables": {
         "vnetSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]",
-        "subnetRoleAssignmentName": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/4d97b98b-1d4f-4787-a291-c67834d212e7')]"
+        "subnetRoleAssignmentName": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+        "managedIdentityName": "init-container-identity",
     },
     "resources": [
         {
@@ -184,9 +185,34 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-05-01",
-            "name": "InitContainerDeployment",
+            "name": "InitIdentityDeployment",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "clusterName": {
+                        "value": "[parameters('resourceName')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "managedIdentityName": {
+                        "value": "[variables('managedIdentityName')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/micya/aks-arm/main/init-identity-deploy.json"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "name": "InitContainerDeployment",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'InitIdentityDeployment')]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -199,6 +225,9 @@
                     },
                     "location": {
                         "value": "[parameters('location')]"
+                    },
+                    "managedIdentityName": {
+                        "value": "[variables('managedIdentityName')]"
                     }
                 },
                 "templateLink": {

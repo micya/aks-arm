@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string",
+            "metadata": {
+                "description": "AKS cluster name"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "AKS cluster location"
+            }
+        },
+        "managedIdentityName": {
+            "type": "string",
+            "metadata": {
+                "description": "ACI managed identity name"
+            }
+        }
+    },
+    "variables": {
+        "aksRoleAssignmentName": "[concat(parameters('clusterName'), '/Microsoft.Authorization/4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
+        "aksId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2018-11-30",
+            "name": "[parameters('managedIdentityName')]",
+            "location": "[parameters('location')]"
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters/providers/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "[variables('aksRoleAssignmentName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))).principalId]",
+                "scope": "[variables('aksId')]",
+                "principalType": "ServicePrincipal"
+            }
+        }
+    ]
+}

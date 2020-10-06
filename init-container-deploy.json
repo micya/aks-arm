@@ -19,48 +19,31 @@
             "metadata": {
                 "description": "AKS cluster location"
             }
+        },
+        "managedIdentityName": {
+            "type": "string",
+            "metadata": {
+                "description": "ACI managed identity name"
+            }
         }
     },
     "variables": {
-        "managedIdentityName": "init-container-identity",
         "containerGroupName": "init-container-group",
-        "containerName": "init-container",
-        "aksRoleAssignmentName": "[concat(parameters('clusterName'), '/Microsoft.Authorization/4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
-        "aksId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+        "containerName": "init-container"
     },
     "resources": [
-        {
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2018-11-30",
-            "name": "[variables('managedIdentityName')]",
-            "location": "[parameters('location')]"
-        },
-        {
-            "type": "Microsoft.ContainerService/managedClusters/providers/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "[variables('aksRoleAssignmentName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))).principalId]",
-                "scope": "[variables('aksId')]"
-            }
-        },
         {
             "type": "Microsoft.ContainerInstance/containerGroups",
             "apiVersion": "2018-10-01",
             "name": "[variables('containerGroupName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]",
-                "[resourceId('Microsoft.ContainerService/managedClusters/providers/roleAssignments', variables('aksRoleAssignmentName'))]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
             ],
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]": {}
                 }
             },
             "properties": {
@@ -74,7 +57,7 @@
                             "resources": {
                                 "requests": {
                                     "cpu": 1,
-                                    "memoryInGB": 0.5
+                                    "memoryInGB": 1.5
                                 }
                             },
                             "environmentVariables": [
