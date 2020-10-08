@@ -72,14 +72,41 @@
             "metadata": {
                 "description": "A CIDR notation IP for Docker bridge."
             }
+        },
+        "subnetRoleAssignmentName": {
+            "defaultValue": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/', newGuid())]",
+            "type": "string",
+            "metadata": {
+                "description": "GUID for vnet role assignment"
+            }
         }
     },
     "variables": {
         "vnetSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]",
-        "subnetRoleAssignmentName": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/4d97b98b-1d4f-4787-a291-c67834d212e7')]",
         "managedIdentityName": "init-container-identity"
     },
     "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-09-01",
+            "name": "[parameters('vnetName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "[parameters('vnetSubnetPrefix')]"
+                        }
+                    }
+                ],
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                }
+            }
+        },
         {
             "type": "Microsoft.ContainerService/managedClusters",
             "apiVersion": "2020-03-01",
@@ -132,27 +159,6 @@
             }
         },
         {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2019-09-01",
-            "name": "[parameters('vnetName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "subnets": [
-                    {
-                        "name": "default",
-                        "properties": {
-                            "addressPrefix": "[parameters('vnetSubnetPrefix')]"
-                        }
-                    }
-                ],
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[parameters('vnetAddressPrefix')]"
-                    ]
-                }
-            }
-        },
-        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "name": "ClusterSubnetRoleAssignmentDeployment",
@@ -170,8 +176,8 @@
                     "resources": [
                         {
                             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
-                            "apiVersion": "2017-05-01",
-                            "name": "[variables('subnetRoleAssignmentName')]",
+                            "apiVersion": "2020-04-01-preview",
+                            "name": "[parameters('subnetRoleAssignmentName')]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
                                 "principalId": "[reference(parameters('resourceName')).identityProfile.kubeletidentity.objectId]",

@@ -19,10 +19,16 @@
             "metadata": {
                 "description": "ACI managed identity name"
             }
+        },
+        "aksRoleAssignmentName": {
+            "defaultValue": "[concat(parameters('clusterName'), '/Microsoft.Authorization/', newGuid())]",
+            "type": "string",
+            "metadata": {
+                "description": "GUID for managed identity role assignment"
+            }
         }
     },
     "variables": {
-        "aksRoleAssignmentName": "[concat(parameters('clusterName'), '/Microsoft.Authorization/4abbcc35-e782-43d8-92c5-2d3f1bd2253f')]",
         "aksId": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
     },
     "resources": [
@@ -34,8 +40,8 @@
         },
         {
             "type": "Microsoft.ContainerService/managedClusters/providers/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "[variables('aksRoleAssignmentName')]",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[parameters('aksRoleAssignmentName')]",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
             ],
