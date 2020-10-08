@@ -33,6 +33,12 @@
     },
     "resources": [
         {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2018-11-30",
+            "name": "[parameters('managedIdentityName')]",
+            "location": "[parameters('location')]"
+        },
+        {
             "type": "Microsoft.ContainerInstance/containerGroups",
             "apiVersion": "2018-10-01",
             "name": "[variables('containerGroupName')]",

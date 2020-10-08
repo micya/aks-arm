@@ -77,7 +77,7 @@
     "variables": {
         "vnetSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'default')]",
         "subnetRoleAssignmentName": "[concat(parameters('vnetName'), '/default/Microsoft.Authorization/4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-        "managedIdentityName": "init-container-identity",
+        "managedIdentityName": "init-container-identity"
     },
     "resources": [
         {
