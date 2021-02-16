@@ -12,5 +12,5 @@ helm repo add webapp https://raw.githubusercontent.com/micya/webapp/master/chart
 # update helm repos
 helm repo update
 
-# install windows helm chart
-helm install webapp webapp/webapp-windows
+# install helm chart
+helm install webapp webapp/webapp
