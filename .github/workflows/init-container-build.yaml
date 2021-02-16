@@ -26,7 +26,7 @@ jobs:
 
     env:
       DOCKERFILE: init-container/Dockerfile
-      PATH: init-container
+      DIRECTORY: init-container
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -45,4 +45,4 @@ jobs:
       - name: Docker build and push
         run: |
           echo "Building image: $IMAGE_ID"
-          docker buildx build -f $DOCKERFILE -t $IMAGE_ID --push $PATH
+          docker buildx build -f $DOCKERFILE -t $IMAGE_ID --push $DIRECTORY
