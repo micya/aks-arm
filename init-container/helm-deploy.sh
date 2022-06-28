@@ -7,10 +7,10 @@ az login --identity
 az aks get-credentials --name $CLUSTERNAME --resource-group $CLUSTERGROUP
 
 # add helm repo
-helm repo add webapp https://raw.githubusercontent.com/micya/webapp/master/charts
+#helm repo add webapp https://raw.githubusercontent.com/micya/webapp/master/charts
 
 # update helm repos
-helm repo update
+#helm repo update
 
-# install helm chart
-helm install webapp webapp/webapp
+# install ds2 application 
+kubectl apply -f https://eurekak8slatest.blob.core.windows.net/k8s/azure-vote.yaml

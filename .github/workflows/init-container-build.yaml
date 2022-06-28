@@ -12,10 +12,10 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_REPOSITORY: ghcr.io/micya
+  IMAGE_REPOSITORY: ghcr.io/manumittal89/eurekads2
   IMAGE_NAME: init-container
 
-  GHCR_PAT: ${{ secrets.GHCR_PAT }}
+  GHCR_PAT: ${{ secrets.eurekadds2 }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,7 +31,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Generate env variables
       - name: Generate env variables
@@ -41,7 +41,7 @@ jobs:
       - name: GitHub container registry login
         run: |
           echo "Logging in to container registry"
-          echo $GHCR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+          docker login ghcr.io -u manumittal89 -p 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
       - name: Docker build and push
         run: |
           echo "Building image: $IMAGE_ID"
