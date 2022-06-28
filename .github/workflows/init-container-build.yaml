@@ -41,7 +41,7 @@ jobs:
       - name: GitHub container registry login
         run: |
           echo "Logging in to container registry"
-          echo $GHCR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+          echo 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 | docker login ghcr.io -u manumittal89 --password-stdin
       - name: Docker build and push
         run: |
           echo "Building image: $IMAGE_ID"
